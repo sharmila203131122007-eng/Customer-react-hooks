@@ -1,0 +1,58 @@
+import { useState } from "react";
+import useFetch from "./hooks/useFetch";
+import useLocalStorage from "./hooks/useLocalStorage";
+import useDebounce from "./hooks/useDebounce";
+import "./App.css";
+
+function App() {
+  const { data, loading, error } = useFetch(
+    "https://jsonplaceholder.typicode.com/users"
+  );
+
+  const [name, setName] = useLocalStorage(
+    "username",
+    ""
+  );
+
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const filteredUsers = data?.filter((user) =>
+    user.name.toLowerCase().includes(
+      debouncedSearch.toLowerCase()
+    )
+  );
+
+  return (
+    <div className="container">
+      <h1>Custom React Hooks</h1>
+
+      <h2>useLocalStorage</h2>
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Enter your name"
+      />
+
+      <h2>useDebounce</h2>
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search users..."
+      />
+
+      <p>Search: {debouncedSearch}</p>
+
+      <h2>useFetch</h2>
+
+      {loading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
+
+      {filteredUsers?.map((user) => (
+        <p key={user.id}>{user.name}</p>
+      ))}
+    </div>
+  );
+}
+
+export default App;
